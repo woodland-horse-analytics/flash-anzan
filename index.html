@@ -198,6 +198,7 @@
             correctSum = numbers.reduce((a, b) => a + b, 0);
             
             currentIndex = 0;
+            document.getElementById('userAnswer').value = '';  // Clear previous answer
             document.getElementById('results').classList.add('hidden');
             document.getElementById('session').classList.remove('hidden');
             
