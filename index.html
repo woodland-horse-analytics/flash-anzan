@@ -34,10 +34,15 @@
             width: 60px;
         }
         #display {
-            font-size: 48px;
+            font-size: 72px;
             text-align: center;
-            min-height: 60px;
+            min-height: 90px;
             margin: 40px 0;
+            transition: all 0.2s ease;
+        }
+        #display.flash {
+            transform: scale(1.1);
+            color: #4f4;
         }
         #breakdown {
             margin: 20px 0;
@@ -55,10 +60,37 @@
         .incorrect {
             color: #f44;
         }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 32px;
+            margin: 0 0 8px 0;
+            color: #fff;
+        }
+        .header h2 {
+            font-size: 16px;
+            margin: 0 0 16px 0;
+            color: #888;
+            font-weight: normal;
+        }
+        .header p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
     <div id="setup">
+        <div class="header">
+            <h1>Flash Anzan Trainer</h1>
+            <h2>Mental Math Practice</h2>
+            <p>Numbers flash sequentially. Add them mentally and enter the sum.</p>
+        </div>
+        
         <div>
             Count: <input type="number" id="count" value="5" min="2" max="20">
         </div>
@@ -73,7 +105,6 @@
 
     <div id="session" class="hidden">
         <div id="display"></div>
-        <button onclick="endSession()" id="endBtn" class="hidden">Enter Answer</button>
     </div>
 
     <div id="answer" class="hidden">
@@ -119,12 +150,26 @@
 
         function showNextNumber(interval) {
             if (currentIndex < numbers.length) {
-                document.getElementById('display').textContent = numbers[currentIndex];
+                const display = document.getElementById('display');
+                
+                // Clear and trigger transition
+                display.classList.remove('flash');
+                display.textContent = '';
+                
+                // Small delay then show number with flash effect
+                setTimeout(() => {
+                    display.textContent = numbers[currentIndex];
+                    display.classList.add('flash');
+                }, 50);
+                
                 currentIndex++;
                 sessionTimer = setTimeout(() => showNextNumber(interval), interval);
             } else {
+                // Session complete - go straight to answer input
                 document.getElementById('display').textContent = '';
-                document.getElementById('endBtn').classList.remove('hidden');
+                document.getElementById('session').classList.add('hidden');
+                document.getElementById('answer').classList.remove('hidden');
+                document.getElementById('userAnswer').focus();
             }
         }
 
@@ -155,7 +200,7 @@
             currentIndex = 0;
             document.getElementById('results').classList.add('hidden');
             document.getElementById('session').classList.remove('hidden');
-            document.getElementById('endBtn').classList.add('hidden');
+            document.getElementById('display').classList.remove('flash');
             
             const interval = parseFloat(document.getElementById('interval').value) * 1000;
             showNextNumber(interval);
@@ -165,6 +210,7 @@
             document.getElementById('results').classList.add('hidden');
             document.getElementById('setup').classList.remove('hidden');
             document.getElementById('userAnswer').value = '';
+            document.getElementById('display').classList.remove('flash');
             numbers = [];
             currentIndex = 0;
             correctSum = 0;
@@ -177,5 +223,20 @@
             }
         });
     </script>
+
+    <footer style="margin-top: 48px; padding: 24px 0; border-top: 1px solid #333; text-align: center; color: #666; font-size: 14px;">
+        <div class="container">
+            <p style="margin-bottom: 12px; font-weight: 600; color: #aaa;">
+                Built by <a href="https://github.com/woodland-horse-analytics" style="color: #4a9eff; text-decoration: none;">Woodland Horse Analytics</a>
+            </p>
+            <p style="margin-bottom: 8px; font-size: 13px;">
+                <a href="https://github.com/woodland-horse-analytics/flash-anzan-trainer" style="color: #666; text-decoration: none; margin: 0 12px;">Source Code</a>
+                <a href="https://github.com/woodland-horse-analytics" style="color: #666; text-decoration: none; margin: 0 12px;">Contact</a>
+            </p>
+            <p style="font-size: 12px; color: #555;">
+                © 2025 Woodland Horse Analytics LLC
+            </p>
+        </div>
+    </footer>
 </body>
 </html>
