@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Math</title>
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #111;
+            color: #fff;
+        }
+        input, button {
+            font-family: monospace;
+            font-size: 16px;
+            padding: 8px;
+            margin: 5px 0;
+            background: #222;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 3px;
+        }
+        button {
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background: #333;
+        }
+        input {
+            width: 60px;
+        }
+        #display {
+            font-size: 48px;
+            text-align: center;
+            min-height: 60px;
+            margin: 40px 0;
+        }
+        #breakdown {
+            margin: 20px 0;
+            padding: 15px;
+            background: #222;
+            border-radius: 5px;
+            white-space: pre-line;
+        }
+        .hidden {
+            display: none;
+        }
+        .correct {
+            color: #4f4;
+        }
+        .incorrect {
+            color: #f44;
+        }
+    </style>
+</head>
+<body>
+    <div id="setup">
+        <div>
+            Count: <input type="number" id="count" value="5" min="2" max="20">
+        </div>
+        <div>
+            Digits: <input type="number" id="digits" value="2" min="1" max="6">
+        </div>
+        <div>
+            Interval (s): <input type="number" id="interval" value="2" min="1" max="10" step="0.5">
+        </div>
+        <button onclick="startSession()">Start</button>
+    </div>
+
+    <div id="session" class="hidden">
+        <div id="display"></div>
+        <button onclick="endSession()" id="endBtn" class="hidden">Enter Answer</button>
+    </div>
+
+    <div id="answer" class="hidden">
+        <div>Your answer: <input type="number" id="userAnswer"></div>
+        <button onclick="checkAnswer()">Check</button>
+    </div>
+
+    <div id="results" class="hidden">
+        <div id="breakdown"></div>
+        <button onclick="replay()">Replay</button>
+        <button onclick="reset()">New Session</button>
+    </div>
+
+    <script>
+        let numbers = [];
+        let currentIndex = 0;
+        let sessionTimer;
+        let correctSum = 0;
+
+        function generateNumber(digits) {
+            const min = Math.pow(10, digits - 1);
+            const max = Math.pow(10, digits) - 1;
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function startSession() {
+            const count = parseInt(document.getElementById('count').value);
+            const digits = parseInt(document.getElementById('digits').value);
+            const interval = parseFloat(document.getElementById('interval').value) * 1000;
+
+            numbers = [];
+            for (let i = 0; i < count; i++) {
+                numbers.push(generateNumber(digits));
+            }
+            correctSum = numbers.reduce((a, b) => a + b, 0);
+            
+            currentIndex = 0;
+            document.getElementById('setup').classList.add('hidden');
+            document.getElementById('session').classList.remove('hidden');
+            
+            showNextNumber(interval);
+        }
+
+        function showNextNumber(interval) {
+            if (currentIndex < numbers.length) {
+                document.getElementById('display').textContent = numbers[currentIndex];
+                currentIndex++;
+                sessionTimer = setTimeout(() => showNextNumber(interval), interval);
+            } else {
+                document.getElementById('display').textContent = '';
+                document.getElementById('endBtn').classList.remove('hidden');
+            }
+        }
+
+        function endSession() {
+            clearTimeout(sessionTimer);
+            document.getElementById('session').classList.add('hidden');
+            document.getElementById('answer').classList.remove('hidden');
+            document.getElementById('userAnswer').focus();
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('userAnswer').value);
+            const isCorrect = userAnswer === correctSum;
+            
+            let breakdown = `Numbers: ${numbers.join(' + ')}\n`;
+            breakdown += `Correct sum: ${correctSum}\n`;
+            breakdown += `Your answer: ${userAnswer}\n`;
+            breakdown += isCorrect ? '✓ Correct!' : '✗ Incorrect';
+            
+            document.getElementById('breakdown').textContent = breakdown;
+            document.getElementById('breakdown').className = isCorrect ? 'correct' : 'incorrect';
+            
+            document.getElementById('answer').classList.add('hidden');
+            document.getElementById('results').classList.remove('hidden');
+        }
+
+        function replay() {
+            currentIndex = 0;
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('session').classList.remove('hidden');
+            document.getElementById('endBtn').classList.add('hidden');
+            
+            const interval = parseFloat(document.getElementById('interval').value) * 1000;
+            showNextNumber(interval);
+        }
+
+        function reset() {
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('setup').classList.remove('hidden');
+            document.getElementById('userAnswer').value = '';
+            numbers = [];
+            currentIndex = 0;
+            correctSum = 0;
+        }
+
+        // Enter key handling
+        document.getElementById('userAnswer').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+    </script>
+</body>
+</html>
