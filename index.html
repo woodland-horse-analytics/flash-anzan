@@ -187,6 +187,16 @@
         }
 
         function replay() {
+            // Generate new numbers with same settings
+            const count = parseInt(document.getElementById('count').value);
+            const digits = parseInt(document.getElementById('digits').value);
+            
+            numbers = [];
+            for (let i = 0; i < count; i++) {
+                numbers.push(generateNumber(digits));
+            }
+            correctSum = numbers.reduce((a, b) => a + b, 0);
+            
             currentIndex = 0;
             document.getElementById('results').classList.add('hidden');
             document.getElementById('session').classList.remove('hidden');
