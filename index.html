@@ -139,17 +139,30 @@
             if (currentIndex < numbers.length) {
                 const display = document.getElementById('display');
                 
-                // Clear display briefly
-                display.textContent = '';
-                
-                // Show number after 100ms
-                setTimeout(() => {
+                if (currentIndex === 0) {
+                    // Show first number immediately
                     display.textContent = numbers[currentIndex];
-                }, 100);
-                
-                currentIndex++;
-                sessionTimer = setTimeout(() => showNextNumber(interval), interval);
+                    currentIndex++;
+                    sessionTimer = setTimeout(() => showNextNumber(interval), interval);
+                } else {
+                    // For subsequent numbers: clear, wait, then show
+                    display.textContent = '';
+                    setTimeout(() => {
+                        if (currentIndex < numbers.length) {
+                            display.textContent = numbers[currentIndex];
+                            currentIndex++;
+                            sessionTimer = setTimeout(() => showNextNumber(interval), interval);
+                        } else {
+                            // All numbers shown, go to answer input
+                            display.textContent = '';
+                            document.getElementById('session').classList.add('hidden');
+                            document.getElementById('answer').classList.remove('hidden');
+                            document.getElementById('userAnswer').focus();
+                        }
+                    }, 100);
+                }
             } else {
+                // All numbers shown, go to answer input
                 document.getElementById('display').textContent = '';
                 document.getElementById('session').classList.add('hidden');
                 document.getElementById('answer').classList.remove('hidden');
